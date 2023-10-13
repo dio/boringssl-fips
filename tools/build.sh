@@ -93,7 +93,7 @@ fi
 
 curl -fsLO https://github.com/Kitware/CMake/releases/download/v"$VERSION"/cmake-"$VERSION"-"$PLATFORM".tar.gz \
   && echo "$SHA256" cmake-"$VERSION"-"$PLATFORM".tar.gz | sha256sum --check
-tar xf cmake-"$VERSION"-"$PLATFORM".tar.gz
+tar -xJf cmake-"$VERSION"-"$PLATFORM".tar.gz
 
 export PATH="$PWD/cmake-$VERSION-$PLATFORM/bin:$PATH"
 
@@ -102,10 +102,13 @@ if [[ `cmake --version | head -n1` != "cmake version $VERSION" ]]; then
   exit 1
 fi
 
+# BoringSSL
 VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27"
 SHA256="a4d069ccef6f3c7bc0c68de82b91414f05cb817494cd1ab483dcf3368883c7c2"
-curl -sLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz
+curl -fsLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz \
   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
+
+tar -xJf boringssl-"$VERSION".tar.xz
 
 cd boringssl
 mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release ..
