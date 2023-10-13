@@ -102,7 +102,7 @@ if [[ `cmake --version | head -n1` != "cmake version $VERSION" ]]; then
   exit 1
 fi
 
-# BoringSSL
+# BoringSSL from https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
 VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27"
 SHA256="a4d069ccef6f3c7bc0c68de82b91414f05cb817494cd1ab483dcf3368883c7c2"
 curl -fsLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz \
