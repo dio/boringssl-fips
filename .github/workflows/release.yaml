@@ -50,10 +50,10 @@ jobs:
     needs: build
     steps:
       - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-      - run: |
-          gh release create ${{ github.ref_name }} \
-            boringssl-fips-amd64/boringssl-fips-amd64.tar.xz boringssl-fips-arm64/boringssl-fips-arm64.tar.xz \
-            -n ${{ github.ref_name }} \
-            -t ${{ github.ref_name }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name || github.ref }}
+          generate_release_notes: true
+          files: |
+            boringssl-fips-amd64/**/*.tar.xz
+            boringssl-fips-arm64/**/*.tar.xz
