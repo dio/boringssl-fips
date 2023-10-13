@@ -1,13 +1,9 @@
 name: release
 
-# on:
-#   push:
-#     tags:
-#       - "fips-*" # see: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L140C20-L140C33.
 on:
   push:
-    branches:
-      - test
+    tags:
+      - "fips-*" # see: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L140C20-L140C33.
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-          # - arm64
+          - arm64
           - amd64
     steps:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
@@ -56,7 +52,8 @@ jobs:
       - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
       - uses: softprops/action-gh-release@v1
         with:
-          tag_name: test
+          tag_name: ${{ github.ref_name || github.ref }}
+          generate_release_notes: true
           files: |
             boringssl-fips-amd64/**/*.tar.xz
-          # boringssl-fips-arm64/**/*.tar.xz
+            boringssl-fips-arm64/**/*.tar.xz
