@@ -34,12 +34,19 @@ jobs:
             CONTAINER_ID=$(docker create -it builder)
             docker cp $CONTAINER_ID:/boringssl/build/crypto/libcrypto.a ./libcrypto.a
             docker cp $CONTAINER_ID:/boringssl/build/ssl/libssl.a ./libssl.a
-            tar cJf boringssl-fips-${{ matrix.arch }}.tar.xz libcrypto.a libssl.a
+            tar -cJf boringssl-fips-${{ matrix.arch }}.tar.xz libcrypto.a libssl.a
+            docker cp $CONTAINER_ID:/ninja-1.10.2/ninja ./ninja
+            tar -cJf ninja-${{ matrix.arch }}.tar.xz ninja
 
       - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           path: boringssl-fips-${{ matrix.arch }}.tar.xz
           name: boringssl-fips-${{ matrix.arch }}
+
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        with:
+          path: ninja-${{ matrix.arch }}.tar.xz
+          name: ninja-${{ matrix.arch }}
 
   release:
     permissions:
@@ -57,3 +64,5 @@ jobs:
           files: |
             boringssl-fips-amd64/**/*.tar.xz
             boringssl-fips-arm64/**/*.tar.xz
+            ninja-amd64/**/*.tar.xz
+            ninja-arm64/**/*.tar.xz
