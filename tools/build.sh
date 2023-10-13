@@ -93,7 +93,7 @@ fi
 
 curl -fsLO https://github.com/Kitware/CMake/releases/download/v"$VERSION"/cmake-"$VERSION"-"$PLATFORM".tar.gz \
   && echo "$SHA256" cmake-"$VERSION"-"$PLATFORM".tar.gz | sha256sum --check
-tar -xJf cmake-"$VERSION"-"$PLATFORM".tar.gz
+tar -xzf cmake-"$VERSION"-"$PLATFORM".tar.gz
 
 export PATH="$PWD/cmake-$VERSION-$PLATFORM/bin:$PATH"
 
