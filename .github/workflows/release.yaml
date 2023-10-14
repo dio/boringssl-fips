@@ -21,10 +21,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-20.04
+          - ubuntu-20.04
           - centos-stream8
         arch:
-          # - arm64
+          - arm64
           - amd64
     steps:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
