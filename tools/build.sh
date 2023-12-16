@@ -103,9 +103,15 @@ if [[ `cmake --version | head -n1` != "cmake version $VERSION" ]]; then
 fi
 
 # BoringSSL from https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
-VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27"
-SHA256="a4d069ccef6f3c7bc0c68de82b91414f05cb817494cd1ab483dcf3368883c7c2"
-curl -fsLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz \
+# VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27"
+# SHA256="a4d069ccef6f3c7bc0c68de82b91414f05cb817494cd1ab483dcf3368883c7c2"
+# curl -fsLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz \
+#   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
+
+# Modified as the following to remove tls-chacha20-poly1305-sha256.
+VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27-no-tls-chacha20-poly1305-sha256"
+SHA256="7fb97effe878c491c10199d4606798ceb479952ffb9220854d82b26d4731e269"
+curl -fsLO https://tis.tetrate.io/archives/boringssl-$VERSION/boringssl-$VERSION.tar.xz \
   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
 
 tar -xJf boringssl-"$VERSION".tar.xz
