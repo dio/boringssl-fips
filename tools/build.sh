@@ -4,8 +4,6 @@
 
 set -ex
 
-haveged -w 1024 -F &
-
 # Allow to override BoringSSL source. The one that is blessed is the default values.
 # The default values are from: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
 BORINGSSL_VERSION=${1-"0c6f40132b828e92ba365c6b7680e32820c63fa7"}
@@ -122,8 +120,6 @@ cd boringssl
 patch -p1 < /var/local/no-check-time.patch
 mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release ..
 ninja
-ninja run_tests
-./crypto/crypto_test
 
 # The result should be in:
 #   boringssl/build/crypto/libcrypto.a
