@@ -29,11 +29,9 @@ jobs:
             --load \
             --tag builder \
             --platform linux/${{ matrix.arch }} \
-            --progress=plain \
             --no-cache \
             .
-            docker run --rm -it --platform linux/${{ matrix.arch }} builder
-            CONTAINER_ID=$(docker create -it --platform linux/${{ matrix.arch }} builder)
+            CONTAINER_ID=$(docker create -it builder)
             docker cp $CONTAINER_ID:/boringssl/build/crypto/libcrypto.a ./libcrypto.a
             docker cp $CONTAINER_ID:/boringssl/build/ssl/libssl.a ./libssl.a
             tar -cJf boringssl-fips-${{ matrix.arch }}.tar.xz libcrypto.a libssl.a

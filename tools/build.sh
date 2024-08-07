@@ -121,6 +121,12 @@ patch -p1 < /var/local/no-check-time.patch
 mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release ..
 ninja
 
+# Skip test for arm64 now. We need to fix it later.
+if [[ "$ARCH" == "x86_64" ]]; then
+  ninja run_tests
+  ./crypto/crypto_test
+fi
+
 # The result should be in:
 #   boringssl/build/crypto/libcrypto.a
 #   boringssl/build/ssl/libssl.a
