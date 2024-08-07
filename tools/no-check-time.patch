@@ -1,0 +1,60 @@
+diff --git a/crypto/x509/x509_vfy.c b/crypto/x509/x509_vfy.c
+index f41ae6e13..789e3e6b1 100644
+--- a/crypto/x509/x509_vfy.c
++++ b/crypto/x509/x509_vfy.c
+@@ -998,6 +998,9 @@ static int check_cert(X509_STORE_CTX *ctx)
+
+ static int check_crl_time(X509_STORE_CTX *ctx, X509_CRL *crl, int notify)
+ {
++    if (ctx->param->flags & X509_V_FLAG_NO_CHECK_TIME) {
++        return 1;
++    }
+     time_t *ptime;
+     int i;
+     if (notify)
+@@ -1740,6 +1743,9 @@ static int check_policy(X509_STORE_CTX *ctx)
+
+ static int check_cert_time(X509_STORE_CTX *ctx, X509 *x)
+ {
++    if (ctx->param->flags & X509_V_FLAG_NO_CHECK_TIME) {
++        return 1;
++    }
+     time_t *ptime;
+     int i;
+
+diff --git a/include/openssl/x509.h b/include/openssl/x509.h
+index 4d312c7e9..537dfa56b 100644
+--- a/include/openssl/x509.h
++++ b/include/openssl/x509.h
+@@ -2070,6 +2070,9 @@ OPENSSL_EXPORT void X509_STORE_CTX_set_depth(X509_STORE_CTX *ctx, int depth);
+ // chain. Alternate chain checking was introduced in 1.0.2b. Setting this flag
+ // will force the behaviour to match that of previous versions.
+ #define X509_V_FLAG_NO_ALT_CHAINS 0x100000
++// X509_V_FLAG_NO_CHECK_TIME disables all time checks in certificate
++// verification.
++#define X509_V_FLAG_NO_CHECK_TIME 0x200000
+
+ #define X509_VP_FLAG_DEFAULT 0x1
+ #define X509_VP_FLAG_OVERWRITE 0x2
+diff --git a/ssl/ssl_test.cc b/ssl/ssl_test.cc
+index e2db5a4da..f4612770f 100644
+--- a/ssl/ssl_test.cc
++++ b/ssl/ssl_test.cc
+@@ -2267,6 +2267,8 @@ XRqE7XFhHL+7TNC2a9OOAjQsEF137YPWo+rhgko=
+   ASSERT_TRUE(X509_STORE_add_cert(store.get(), root.get()));
+   SSL_CTX_set_cert_store(client_ctx.get(), store.release());
+   SSL_CTX_set_verify(client_ctx.get(), SSL_VERIFY_PEER, nullptr);
++  X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(client_ctx.get()),
++                              X509_V_FLAG_NO_CHECK_TIME);
+   static const char kSecretName[] = "secret.example";
+   ASSERT_TRUE(X509_VERIFY_PARAM_set1_host(SSL_CTX_get0_param(client_ctx.get()),
+                                           kSecretName, strlen(kSecretName)));
+@@ -8064,6 +8066,8 @@ RVHWbCvFvNZAoWiIJ2z34RLGInyZvCZ8xLAvsuaWULDDaoeDl1M0t4Hm
+   SSL_CTX_set_verify(client_ctx.get(),
+                      SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
+                      nullptr);
++  X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(client_ctx.get()),
++                              X509_V_FLAG_NO_CHECK_TIME);
+
+   struct TestCase {
+     X509 *cert;

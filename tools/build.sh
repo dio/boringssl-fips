@@ -1,14 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This is adapted from: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/external/boringssl_fips.genrule_cmd.
 
-set -e
+set -ex
+
+# Allow to override BoringSSL source. The one that is blessed is the default values.
+# The default values are from: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
+BORINGSSL_VERSION=${1-"0c6f40132b828e92ba365c6b7680e32820c63fa7"}
+BORINGSSL_SHA256=${2-"62f733289f2d677c2723f556aa58034c438f3a7bbca6c12b156538a88e38da8a"}
+BORINGSSL_SOURCE=${3-"https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-${BORINGSSL_VERSION}.tar.xz"}
 
 export CXXFLAGS=''
 export LDFLAGS=''
 
-# BoringSSL build as described in the Security Policy for BoringCrypto module (2022-05-06):
-# https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp4407.pdf
+# BoringSSL build as described in the Security Policy for BoringCrypto module (2022-06-13):
+# https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp4735.pdf
 
 OS=`uname`
 ARCH=`uname -m`
@@ -19,13 +25,13 @@ if [[ "$OS" != "Linux" || ("$ARCH" != "x86_64" && "$ARCH" != "aarch64") ]]; then
 fi
 
 # Clang
-VERSION="12.0.0"
+VERSION="14.0.0"
 if [[ "$ARCH" == "x86_64" ]]; then
-  PLATFORM="x86_64-linux-gnu-ubuntu-20.04"
-  SHA256=a9ff205eb0b73ca7c86afc6432eed1c2d49133bd0d49e47b15be59bbf0dd292e
+  PLATFORM="x86_64-linux-gnu-ubuntu-18.04"
+  SHA256=61582215dafafb7b576ea30cc136be92c877ba1f1c31ddbbd372d6d65622fef5
 else
   PLATFORM="aarch64-linux-gnu"
-  SHA256=d05f0b04fb248ce1e7a61fcd2087e6be8bc4b06b2cc348792f383abf414dec48
+  SHA256=1792badcd44066c79148ffeb1746058422cc9d838462be07e3cb19a4b724a1ee
 fi
 
 curl -fsLO https://github.com/llvm/llvm-project/releases/download/llvmorg-"$VERSION"/clang+llvm-"$VERSION"-"$PLATFORM".tar.xz \
@@ -42,13 +48,13 @@ if [[ `clang --version | head -1 | awk '{print $3}'` != "$VERSION" ]]; then
 fi
 
 # Go
-VERSION="1.16.5"
+VERSION="1.18.1"
 if [[ "$ARCH" == "x86_64" ]]; then
   PLATFORM="linux-amd64"
-  SHA256=b12c23023b68de22f74c0524f10b753e7b08b1504cb7e417eccebdd3fae49061
+  SHA256=b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334
 else
   PLATFORM="linux-arm64"
-  SHA256=d5446b46ef6f36fdffa852f73dfbbe78c1ddf010b99fa4964944b9ae8b4d6799
+  SHA256=56a91851c97fb4697077abbca38860f735c32b38993ff79b088dac46e4735633
 fi
 
 curl -fsLO https://dl.google.com/go/go"$VERSION"."$PLATFORM".tar.gz \
@@ -82,13 +88,13 @@ fi
 cd ..
 
 # CMake
-VERSION="3.20.1"
+VERSION="3.22.1"
 if [[ "$ARCH" == "x86_64" ]]; then
   PLATFORM="linux-x86_64"
-  SHA256=b8c141bd7a6d335600ab0a8a35e75af79f95b837f736456b5532f4d717f20a09
+  SHA256=73565c72355c6652e9db149249af36bcab44d9d478c5546fd926e69ad6b43640
 else
   PLATFORM="linux-aarch64"
-  SHA256=5ad1f8139498a1956df369c401658ec787f63c8cb4e9759f2edaa51626a86512
+  SHA256=601443375aa1a48a1a076bda7e3cca73af88400463e166fffc3e1da3ce03540b
 fi
 
 curl -fsLO https://github.com/Kitware/CMake/releases/download/v"$VERSION"/cmake-"$VERSION"-"$PLATFORM".tar.gz \
@@ -102,20 +108,27 @@ if [[ `cmake --version | head -n1` != "cmake version $VERSION" ]]; then
   exit 1
 fi
 
-# BoringSSL from https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
-# VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27"
-# SHA256="a4d069ccef6f3c7bc0c68de82b91414f05cb817494cd1ab483dcf3368883c7c2"
-# curl -fsLO https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-853ca1ea1168dff08011e5d42d94609cc0ca2e27.tar.xz \
-#   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
-
-# Modified as the following to remove tls-chacha20-poly1305-sha256.
-VERSION="853ca1ea1168dff08011e5d42d94609cc0ca2e27-no-tls-chacha20-poly1305-sha256"
-SHA256="7fb97effe878c491c10199d4606798ceb479952ffb9220854d82b26d4731e269"
-curl -fsLO https://tis.tetrate.io/archives/boringssl-$VERSION/boringssl-$VERSION.tar.xz \
+# Build and test BoringSSL.
+VERSION="${BORINGSSL_VERSION}"
+SHA256="${BORINGSSL_SHA256}"
+curl -fsLO "${BORINGSSL_SOURCE}" \
   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
 
 tar -xJf boringssl-"$VERSION".tar.xz
 
 cd boringssl
+patch -p1 < /var/local/no-check-time.patch
 mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release ..
 ninja
+ninja run_tests
+./crypto/crypto_test
+
+# The result should be in:
+#   boringssl/build/crypto/libcrypto.a
+#   boringssl/build/ssl/libssl.a
+
+# If you run this script using docker container, you can do:
+#   CONTAINER_ID=$(docker create -it your-image-name)
+#   docker cp $CONTAINER_ID:/boringssl/build/crypto/libcrypto.a ./libcrypto.a
+#   docker cp $CONTAINER_ID:/boringssl/build/ssl/libssl.a ./libssl.a
+#   tar -cJf boringssl-fips.tar.xz libcrypto.a libssl.a
