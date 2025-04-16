@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-# This is adapted from: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/external/boringssl_fips.genrule_cmd.
+# This is adapted from: https://github.com/envoyproxy/envoy/blob/e451caf9609b11418ec67f9d29b109e7a966a22c/bazel/external/boringssl_fips.genrule_cmd
 
-set -ex
+set -eo pipefail
 
 # Allow to override BoringSSL source. The one that is blessed is the default values.
-# The default values are from: https://github.com/envoyproxy/envoy/blob/73dc561f0c227c03ec6535eaf4c30d16766236a0/bazel/repository_locations.bzl#L142.
+# Since:
 BORINGSSL_VERSION=${1-"0c6f40132b828e92ba365c6b7680e32820c63fa7"}
-BORINGSSL_SHA256=${2-"62f733289f2d677c2723f556aa58034c438f3a7bbca6c12b156538a88e38da8a"}
-BORINGSSL_SOURCE=${3-"https://commondatastorage.googleapis.com/chromium-boringssl-fips/boringssl-${BORINGSSL_VERSION}.tar.xz"}
+BORINGSSL_SHA256=${2-"50db81f25e3ee0f90b95182fc244ceb58aefbac59456bf3f55f1c519c5584d71"}
+BORINGSSL_SOURCE=${3-"https://github.com/google/boringssl/archive/${BORINGSSL_VERSION}.tar.gz"}
 
 export CXXFLAGS=''
 export LDFLAGS=''
@@ -48,13 +48,13 @@ if [[ `clang --version | head -1 | awk '{print $3}'` != "$VERSION" ]]; then
 fi
 
 # Go
-VERSION="1.18.1"
+VERSION=1.24.2
 if [[ "$ARCH" == "x86_64" ]]; then
   PLATFORM="linux-amd64"
-  SHA256=b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334
+  SHA256=68097bd680839cbc9d464a0edce4f7c333975e27a90246890e9f1078c7e702ad
 else
   PLATFORM="linux-arm64"
-  SHA256=56a91851c97fb4697077abbca38860f735c32b38993ff79b088dac46e4735633
+  SHA256=756274ea4b68fa5535eb9fe2559889287d725a8da63c6aae4d5f23778c229f4b
 fi
 
 curl -fsLO https://dl.google.com/go/go"$VERSION"."$PLATFORM".tar.gz \
@@ -118,7 +118,7 @@ tar -xJf boringssl-"$VERSION".tar.xz
 
 cd boringssl
 patch -p1 < /var/local/no-check-time.patch
-mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release ..
+mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC" ..
 ninja
 
 # Skip test for arm64 now. We need to fix it later.
