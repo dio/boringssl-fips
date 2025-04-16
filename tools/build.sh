@@ -111,7 +111,7 @@ fi
 # Build and test BoringSSL.
 VERSION="${BORINGSSL_VERSION}"
 SHA256="${BORINGSSL_SHA256}"
-curl -fsLO "${BORINGSSL_SOURCE}" \
+curl -fsLO "${BORINGSSL_SOURCE}" && mv "$VERSION".tar.xz boringssl-"$VERSION".tar.xz \
   && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
 
 tar -xJf boringssl-"$VERSION".tar.xz
