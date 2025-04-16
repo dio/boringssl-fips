@@ -2,7 +2,7 @@
 
 # This is adapted from: https://github.com/envoyproxy/envoy/blob/e451caf9609b11418ec67f9d29b109e7a966a22c/bazel/external/boringssl_fips.genrule_cmd
 
-set -eo pipefail
+set -xeo pipefail
 
 # Allow to override BoringSSL source. The one that is blessed is the default values.
 # Since:
