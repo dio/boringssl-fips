@@ -111,10 +111,10 @@ fi
 # Build and test BoringSSL.
 VERSION="${BORINGSSL_VERSION}"
 SHA256="${BORINGSSL_SHA256}"
-curl -fsLO "${BORINGSSL_SOURCE}" && mv "$VERSION".tar.xz boringssl-"$VERSION".tar.xz \
-  && echo "$SHA256" boringssl-"$VERSION".tar.xz | sha256sum --check
+curl -fsLO "${BORINGSSL_SOURCE}" && mv "$VERSION".tar.gz boringssl-"$VERSION".tar.gz \
+  && echo "$SHA256" boringssl-"$VERSION".tar.gz | sha256sum --check
 
-tar -xJf boringssl-"$VERSION".tar.xz
+tar -xzf boringssl-"$VERSION".tar.gz
 
 cd boringssl
 patch -p1 < /var/local/no-check-time.patch
