@@ -116,6 +116,7 @@ curl -fsLO "${BORINGSSL_SOURCE}" && mv "$VERSION".tar.gz boringssl-"$VERSION".ta
 
 tar -xzf boringssl-"$VERSION".tar.gz
 
+mv boringssl-"$VERSION" boringssl
 cd boringssl
 patch -p1 < /var/local/no-check-time.patch
 mkdir build && cd build && cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=${HOME}/toolchain -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC" ..
