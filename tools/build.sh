@@ -7,7 +7,7 @@ set -xeo pipefail
 # Allow to override BoringSSL source. The one that is blessed is the default values.
 # Since:
 BORINGSSL_VERSION=${1-"0c6f40132b828e92ba365c6b7680e32820c63fa7"}
-BORINGSSL_SHA256=${2-"50db81f25e3ee0f90b95182fc244ceb58aefbac59456bf3f55f1c519c5584d71"}
+BORINGSSL_SHA256=${2-"ef80a97ebef05451fd38dbda7ca930496fae7ad108f3203f8805f08c25c94a51"}
 BORINGSSL_SOURCE=${3-"https://github.com/google/boringssl/archive/${BORINGSSL_VERSION}.tar.gz"}
 
 export CXXFLAGS=''
